@@ -35,7 +35,7 @@ public class Program
             Console.WriteLine($"Mirroring audio from {sourceDevice.FriendlyName} to {targetDevice.FriendlyName}");
 
             using (var capture = new WasapiLoopbackCapture(sourceDevice))
-            using (var output = new WasapiOut(targetDevice, AudioClientShareMode.Shared, false, 200))
+            using (var output = new WasapiOut(targetDevice, AudioClientShareMode.Shared, false, offsetMilliseconds))
             {
                 var bufferedWaveProvider = new BufferedWaveProvider(capture.WaveFormat)
                 {
