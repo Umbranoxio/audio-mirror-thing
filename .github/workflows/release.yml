@@ -1,0 +1,58 @@
+name: Build & Release
+
+on:
+   workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Extract short SHA
+      id: short_sha
+      run: echo "##[set-output name=sha;]$(echo ${GITHUB_SHA:0:6})"
+
+    - name: Build x64
+      run: dotnet publish -c Release -r win-x64 --self-contained false /p:PublishSingleFile=true
+
+    - name: Build x86
+      run: dotnet publish -c Release -r win-x86 --self-contained false /p:PublishSingleFile=true
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.short_sha.outputs.sha }}
+        release_name: Release ${{ steps.short_sha.outputs.sha }}
+        draft: false
+        prerelease: false
+
+    - name: Upload x64 Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./audio-mirror-thing/bin/Release/net6.0-windows7.0/win-x64/publish/audio-mirror-thing.exe
+        asset_name: audio-mirror-thing-x64.exe
+        asset_content_type: application/octet-stream
+
+    - name: Upload x86 Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./audio-mirror-thing/bin/Release/net6.0-windows7.0/win-x86/publish/audio-mirror-thing.exe
+        asset_name: audio-mirror-thing-x86.exe
+        asset_content_type: application/octet-stream
