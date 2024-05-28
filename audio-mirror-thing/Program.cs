@@ -14,7 +14,7 @@ public class Program
         {
             Console.Clear();
 
-            int offsetMilliseconds = GetValidOffset("Define an audio offset in milliseconds (recommended 10ms):");
+            int offsetMilliseconds = GetValidOffset("Define an audio offset in milliseconds (suggested 200ms):");
 
             var enumerator = new MMDeviceEnumerator();
 
